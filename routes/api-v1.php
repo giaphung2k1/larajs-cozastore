@@ -44,6 +44,25 @@ Route::group(['middleware' => 'auth:api'], function () {
         //{{ROUTE_ADMIN_NOT_DELETE_THIS_LINE}}
     });
 
+    /*<==> Category Route - 2021-08-17 10:51:26 <==>*/
+    Route::get('/categories/get-categories', 'CategoryController@getCategory');
+            Route::apiResource('categories', 'CategoryController');
+    /*<==> Product Route - 2021-08-17 12:13:07 <==>*/
+    Route::get('/products/get-products', 'ProductController@getProduct');
+            Route::apiResource('products', 'ProductController');
+    /*<==> Color Route - 2021-08-17 12:23:52 <==>*/
+    Route::get('/colors/get-colors', 'ColorController@getColor');
+            Route::apiResource('colors', 'ColorController');
+    /*<==> Size Route - 2021-08-17 12:25:08 <==>*/
+    Route::get('/sizes/get-sizes', 'SizeController@getSize');
+            Route::apiResource('sizes', 'SizeController');
+    /*<==> ProductPayment Route - 2021-08-17 12:27:50 <==>*/
+    Route::apiResource('product-payments', 'ProductPaymentController');
+    /*<==> ProductReject Route - 2021-08-17 12:31:00 <==>*/
+    Route::apiResource('product-rejects', 'ProductRejectController');
+    /*<==> Member Route - 2021-08-17 12:35:43 <==>*/
+    Route::get('/members/get-members', 'MemberController@getMember');
+            Route::apiResource('members', 'MemberController');
     //{{ROUTE_USER_NOT_DELETE_THIS_LINE}}
 });
 

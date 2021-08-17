@@ -5,6 +5,13 @@ Vue.use(VueRouter);
 
 import dashboard from './modules/dashboard';
 import administrator from './modules/administrator';
+import category from './modules/category';
+import product from './modules/product';
+import color from './modules/color';
+import size from './modules/size';
+import productPayment from './modules/product-payment';
+import productReject from './modules/product-reject';
+import member from './modules/member';
 // {{$IMPORT_ROUTE_NOT_DELETE_THIS_LINE$}}
 
 /**
@@ -80,7 +87,14 @@ export const constantRouterMap = [
 ];
 
 export const asyncRouterMap = [
-  // {{$ROUTE_ASYNC_NOT_DELETE_THIS_LINE$}},
+  category,
+      product,
+      color,
+      size,
+      productPayment,
+      productReject,
+      member,
+      // {{$ROUTE_ASYNC_NOT_DELETE_THIS_LINE$}},
   administrator,
   { path: '*', redirect: '/404', hidden: true },
 ];
