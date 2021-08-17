@@ -60,7 +60,7 @@ This project is built on top of fresh latest version Laravel 8. You should check
 
 ```bash
 # Clone the project
-git clone https://github.com/maingocthanhtan96/LaraJS.git
+git clone https://github.com/giaphung2k1/larajs-cozastore/
 
 # Init project
 # https://github.com/beyondcode/laravel-er-diagram-generator
@@ -136,8 +136,4 @@ username: developer@larajs.com
 password: Admin@123!
 ```
 
-## ⚖️ License
 
-[MIT](https://github.com/maingocthanhtan96/LaraJS/blob/master/LICENSE) license.
-
-Copyright (c) 2019-present maingocthanhtan96
