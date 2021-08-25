@@ -10,6 +10,7 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Models\Product;
+use App\Models\ProductDetail;
 use App\Services\QueryService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -49,7 +50,7 @@ class ProductController extends Controller
 			$queryService = new QueryService(new Product);
             $queryService->select = [];
             $queryService->columnSearch = ['name'];
-            $queryService->withRelationship = ['colors','sizes','category','colors'];
+            $queryService->withRelationship = ['category','productDetails.size','productDetails.color'];
             $queryService->search = $search;
             $queryService->betweenDate = $betweenDate;
             $queryService->limit = $limit;
@@ -75,19 +76,34 @@ class ProductController extends Controller
 	public function store(StoreProductRequest $request): JsonResponse
 	{
 		try {
+			$requestAll = $request->all();
+			$requestAll['stock_out'] = 0;
+			$requestAll['inventory'] = 0;	
 		    $product = new Product();
-		    $product->fill($request->all());
+		    $product->fill($requestAll);
+			if($request->hasFile('image')){
+				$disk = \Storage::disk();
+				$fileName = $disk->putFile(Product::FOLDER_UPLOAD,$request->file('image'));
+				$product->image = $disk->url($fileName);
+			}
             $product->save();
-			$colorId = $request->get('color_id', []);
-            $product->colors()->attach($colorId);
-            $sizeId = $request->get('size_id', []);
-            $product->sizes()->attach($sizeId);
-            $colorId = $request->get('color_id', []);
-            $product->colors()->attach($colorId);
-            $colorId = $request->get('color_id', []);
-            $product->colors()->attach($colorId);
-            //{{CONTROLLER_RELATIONSHIP_MTM_CREATE_NOT_DELETE_THIS_LINE}}
+			$productDetails = json_decode($requestAll['product_details'],true)??[];
+			foreach($productDetails as $key =>  $detail){
+				$productDetails[$key]['product_id'] = $product->id;
+			}
+			
+			ProductDetail::upsert($productDetails,['product_id','size_id','color_id'],['amount','price']);
 
+			$colorId = $request->get('color_id', []);
+			if($colorId){
+				$product->colors()->attach($colorId);
+			}
+           
+            $sizeId = $request->get('size_id', []);
+			if($sizeId){
+				$product->sizes()->attach($sizeId);
+			}
+            
 			return $this->jsonData($product, Response::HTTP_CREATED);
 		} catch (\Exception $e) {
 			return $this->jsonError($e);
@@ -102,13 +118,8 @@ class ProductController extends Controller
 	 */
 	public function show(Product $product): JsonResponse
 	{
-		try {
-		    $product->color_id = \Arr::pluck($product->colors()->get(), 'pivot.color_id');
-            $product->size_id = \Arr::pluck($product->sizes()->get(), 'pivot.size_id');
-            $product->color_id = \Arr::pluck($product->colors()->get(), 'pivot.color_id');
-            $product->color_id = \Arr::pluck($product->colors()->get(), 'pivot.color_id');
-            //{{CONTROLLER_RELATIONSHIP_MTM_SHOW_NOT_DELETE_THIS_LINE}}
-
+		try {	
+			$product->load('productDetails');
 			return $this->jsonData($product);
 		} catch (\Exception $e) {
 			return $this->jsonError($e);
@@ -125,17 +136,31 @@ class ProductController extends Controller
 	public function update(StoreProductRequest $request, Product $product): JsonResponse
 	{
 		try {
+			$urlImageOld = parse_url($product->image,PHP_URL_PATH);
 		    $product->fill($request->all());
+			if($request->hasFile('image')){	
+				$disk = \Storage::disk();
+				$fileName = $disk->putFile(Product::FOLDER_UPLOAD,$request->file('image'));
+				if($disk->exists($urlImageOld)){
+					$disk->delete($urlImageOld);
+				}
+				$product->image = $disk->url($fileName);
+			}
             $product->save();
-            $colorId = $request->get('color_id', []);
-            $product->colors()->sync($colorId);
-            $sizeId = $request->get('size_id', []);
-            $product->sizes()->sync($sizeId);
-            $colorId = $request->get('color_id', []);
-            $product->colors()->sync($colorId);
-            $colorId = $request->get('color_id', []);
-            $product->colors()->sync($colorId);
-            //{{CONTROLLER_RELATIONSHIP_MTM_UPDATE_NOT_DELETE_THIS_LINE}}
+			$productDetails = json_decode($request->product_details,true)??[];
+			foreach($productDetails as $key =>  $detail){
+					unset($productDetails[$key]['created_at']);
+					$productDetails[$key]['updated_at'] = now();
+					$productDetails[$key]['product_id'] = $product->id;
+			}
+			ProductDetail::upsert($productDetails,['product_id','size_id','color_id'],['amount','price']);
+
+            // $colorId = $request->get('color_id', []);
+            // $product->colors()->sync($colorId);
+            // $sizeId = $request->get('size_id', []);
+            // $product->sizes()->sync($sizeId);
+           
+           
 
 			return $this->jsonData($product);
 		} catch (\Exception $e) {
@@ -152,6 +177,11 @@ class ProductController extends Controller
     public function destroy(Product $product): JsonResponse
     {
 	    try {
+			$urlImageOld = parse_url($product->image,PHP_URL_PATH);
+			$disk = \Storage::disk();
+			if($disk->exists($urlImageOld)){
+				$disk->delete($urlImageOld);
+			}
 	        $product->colors()->detach();
             $product->sizes()->detach();
             $product->colors()->detach();
@@ -179,6 +209,25 @@ class ProductController extends Controller
             return $this->jsonError($e);
         }
     }
+	/**
+	 * 	
+	 */
+	public function detail($id){
+		try {
+			$productDetails = ProductDetail::where('product_id',$id)->get()->toArray();
+			dd($productDetails);
+			$sizesId = array_unique(\Arr::pluck($productDetails,'size_id'));
+			$colorsId = array_unique(\Arr::pluck($productDetails,'color_id'));
+			$sizes = Size::find($sizesId);
+			$colors = Color::find($colorsId);
+           
 
-    //{{CONTROLLER_RELATIONSHIP_NOT_DELETE_THIS_LINE}}
+            return $this->jsonData([
+				'sizes' => $sizes,
+				'colors' => $colors
+			]);
+        } catch (\Exception $e) {
+            return $this->jsonError($e);
+        }
+	}
 }

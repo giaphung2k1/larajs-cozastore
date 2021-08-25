@@ -71,6 +71,20 @@
              />
            </el-tooltip>
           </el-form-item>
+          <el-form-item
+          data-generator="phone"
+          :label="$t('table.member.phone')"
+          prop="phone"
+          :error="errors.phone && errors.phone[0]"
+          >
+            <el-input
+              v-model="form.phone"
+              name="phone"
+              :placeholder="$t('table.member.phone')"
+              maxlength="191"
+              show-word-limit
+            />
+          </el-form-item>
           <!--{{$FROM_ITEM_NOT_DELETE_THIS_LINE$}}-->
           <el-form-item class="tw-flex tw-justify-end">
             <router-link v-slot="{ href, navigate }" :to="{ name: 'Member' }" custom>
@@ -118,12 +132,13 @@ export default {
   data() {
     return {
       form: {
-        id: '',
+         id: '',
         code: '',
         name: '',
         sns_link: '',
         is_block: 0,
-      }, // {{$$}}
+        phone: '',
+       }, // {{$$}}
       loading: {
         form: false,
         button: false,
@@ -135,6 +150,9 @@ export default {
     // not rename rules
     rules() {
       return {
+        name: [
+          { required: true, message: this.$t('validation.required', { attribute: this.$t('table.member.name') }), trigger: ['change', 'blur'] },
+        ],
         // {{$RULES_NOT_DELETE_THIS_LINE$}}
       };
     },

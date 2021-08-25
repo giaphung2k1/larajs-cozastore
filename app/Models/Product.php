@@ -14,6 +14,7 @@ class Product extends BaseModel
 {
 	use UserSignatureTrait;
     use SoftDeletes;
+    const FOLDER_UPLOAD = '/uploads/products';
 
     //Declare table name
     protected $table = 'products';
@@ -34,21 +35,7 @@ class Product extends BaseModel
 
     
 
-	/**
-     * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
-     **/
-    public function colors(): \Illuminate\Database\Eloquent\Relations\belongsToMany
-    {
-        return $this->belongsToMany(Color::class, 'ref_product_color', 'product_id', 'color_id');
-    }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
-     **/
-    public function sizes(): \Illuminate\Database\Eloquent\Relations\belongsToMany
-    {
-        return $this->belongsToMany(Size::class, 'ref_product_size', 'product_id', 'size_id');
-    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo
@@ -72,6 +59,11 @@ class Product extends BaseModel
     public function productPayments(): \Illuminate\Database\Eloquent\Relations\hasMany
     {
         return $this->hasMany(ProductPayment::class, 'product_id', 'id');
+    }
+
+    public function productDetails()
+    {
+        return $this->hasMany(ProductDetail::class,'product_id','id');
     }
 
     

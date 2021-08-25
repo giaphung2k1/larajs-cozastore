@@ -196,16 +196,16 @@ export default {
 				size_id: '',
 				color_id: '',
 				member_id: '',
-	}, // {{$$}}
+			}, // {{$$}}
 			loading: {
 				form: false,
 				button: false,
 			},
 			productList: [],
-		sizeList: [],
-		colorList: [],
+			sizeList: [],
+			colorList: [],
 			memberList: [],
-			// {{$DATA_NOT_DELETE_THIS_LINE$}}
+				// {{$DATA_NOT_DELETE_THIS_LINE$}}
 		};
 	},
 	computed: {

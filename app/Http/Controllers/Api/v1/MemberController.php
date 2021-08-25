@@ -77,6 +77,8 @@ class MemberController extends Controller
 		try {
 		    $member = new Member();
 		    $member->fill($request->all());
+			$member->save();
+			$member->code = Member::PREFIX_CODE.str_pad($member->id,2,'0',STR_PAD_LEFT);
             $member->save();
 			//{{CONTROLLER_RELATIONSHIP_MTM_CREATE_NOT_DELETE_THIS_LINE}}
 
@@ -156,5 +158,14 @@ class MemberController extends Controller
         }
     }
 
-    //{{CONTROLLER_RELATIONSHIP_NOT_DELETE_THIS_LINE}}
+    public function search(Request $request){
+		try {		
+			$search = $request->get('search');
+			$member = Member::where('name','LIKE',"%$search%")->orWhere('code','LIKE',"%$search%")->get();
+			
+            return $this->jsonData($member);
+        } catch (\Exception $e) {
+            return $this->jsonError($e);
+        }
+	}
 }

@@ -53,11 +53,12 @@
  *          @OA\MediaType(
  *              mediaType="multipart/form-data",
  *              @OA\Schema (
- *                  required={"id"},
+ *                  required={"id", "name"},
  *                  @OA\Property(property="code", type="VARCHAR", default="NULL", example="Jarred Sawayn", description=""),
-     *                  @OA\Property(property="name", type="VARCHAR", default="NULL", example="Ofelia Bernier", description=""),
+     *                  @OA\Property(property="name", type="VARCHAR", default="NONE", example="Sim Jenkins", description=""),
      *                  @OA\Property(property="sns_link", type="VARCHAR", default="NULL", example="Dana Nikolaus", description=""),
      *                  @OA\Property(property="is_block", type="BOOLEAN", default="0", example="0", description=""),
+ *                  @OA\Property(property="phone", type="VARCHAR", default="NULL", example="Sheldon Walker", description=""),
  *                  x="{{SWAGGER_PROPERTY_JSON_CONTENT_NOT_DELETE_THIS_LINE}}"
  *              )
  *          )
@@ -88,11 +89,12 @@
  *          @OA\MediaType(
  *              mediaType="multipart/form-data",
  *              @OA\Schema (
- *                  required={"id"},
+ *                  required={"id", "name"},
  *                  @OA\Property(property="code", type="VARCHAR", default="NULL", example="Jarred Sawayn", description=""),
-     *                  @OA\Property(property="name", type="VARCHAR", default="NULL", example="Ofelia Bernier", description=""),
+     *                  @OA\Property(property="name", type="VARCHAR", default="NONE", example="Sim Jenkins", description=""),
      *                  @OA\Property(property="sns_link", type="VARCHAR", default="NULL", example="Dana Nikolaus", description=""),
      *                  @OA\Property(property="is_block", type="BOOLEAN", default="0", example="0", description=""),
+ *                  @OA\Property(property="phone", type="VARCHAR", default="NULL", example="Sheldon Walker", description=""),
  *                  x="{{SWAGGER_PROPERTY_JSON_CONTENT_NOT_DELETE_THIS_LINE}}"
  *              )
  *          )
@@ -118,13 +120,13 @@
  * @OA\Schema(
  *     type="object",
  *     title="Member",
- *     required={"id"},
+ *     required={"id", "name"},
  * )
  */
 class Member
 {
     /**
-     * @OA\Property(property="id", type="BIGINT", description="AUTO_INCREMENT")
+     * @OA\Property(property="id", "name", type="BIGINT", description="AUTO_INCREMENT")
      */
 
     /**
@@ -132,7 +134,7 @@ class Member
      */
 
     /**
-     * <###> @OA\Property(property="name", type="VARCHAR", default="NULL", description="")
+     * <###> @OA\Property(property="name", type="VARCHAR", default="NONE", description="")
      */
 
     /**
@@ -141,6 +143,10 @@ class Member
 
     /**
      * <###> @OA\Property(property="is_block", type="BOOLEAN", default="0", description="")
+     */
+
+    /**
+     * <###> @OA\Property(property="phone", type="VARCHAR", default="NULL", description="")
      */
 
     //{{SWAGGER_PROPERTY_NOT_DELETE_THIS_LINE}}

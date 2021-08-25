@@ -13,6 +13,15 @@ export default class MemberResource extends Resource {
     super('/members');
   }
 
+  search(search){
+    return request({
+      url: '/members/search',
+      method: 'get',
+      params: {
+        search,
+      },
+    });
+  }
   getMember() {
     return request({
       url: '/members/get-members',

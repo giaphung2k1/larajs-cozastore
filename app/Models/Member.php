@@ -12,15 +12,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Member extends BaseModel
 {
 	use SoftDeletes;
+    const PREFIX_CODE = 'Member_';
 
     //Declare table name
     protected $table = 'members';
     //{{TIMESTAMPS_NOT_DELETE_THIS_LINE}}
     protected $fillable = [
-    	'code',
+        'code',
         'name',
         'sns_link',
         'is_block',
+        'phone',
     ];
 
     

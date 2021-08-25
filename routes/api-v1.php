@@ -49,6 +49,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::apiResource('categories', 'CategoryController');
     /*<==> Product Route - 2021-08-17 12:13:07 <==>*/
     Route::get('/products/get-products', 'ProductController@getProduct');
+    Route::get('/products/{id}/detail', 'ProductController@detail');
             Route::apiResource('products', 'ProductController');
     /*<==> Color Route - 2021-08-17 12:23:52 <==>*/
     Route::get('/colors/get-colors', 'ColorController@getColor');
@@ -62,8 +63,11 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::apiResource('product-rejects', 'ProductRejectController');
     /*<==> Member Route - 2021-08-17 12:35:43 <==>*/
     Route::get('/members/get-members', 'MemberController@getMember');
+    Route::get('/members/search', 'MemberController@search');
             Route::apiResource('members', 'MemberController');
-    //{{ROUTE_USER_NOT_DELETE_THIS_LINE}}
+    Route::apiResource('product-details', 'ProductDetailController');
+    
+   
 });
 
 Route::fallback(function () {
