@@ -10,6 +10,8 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Models\ProductPayment;
+use App\Models\ProductDetail;
+use App\Models\Product;
 use App\Services\QueryService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -75,13 +77,32 @@ class ProductPaymentController extends Controller
 	public function store(StoreProductPaymentRequest $request): JsonResponse
 	{
 		try {
+			\DB::beginTransaction();
+			$productDetail = ProductDetail::where('product_id',$request->product_id)
+			->where('color_id',$request->color_id) 
+			->where('size_id',$request->size_id)
+			->where('amount','>',0)
+			->first();
+			$requestAll = $request->all();
+			$requestAll['product_detail_id'] = $productDetail->id;
+			$requestAll['price'] = $productDetail->price * $requestAll['total'];
+			$productDetail->decrement('amount',$requestAll['total']);
 		    $productPayment = new ProductPayment();
-		    $productPayment->fill($request->all());
+		    $productPayment->fill($requestAll);
             $productPayment->save();
-			//{{CONTROLLER_RELATIONSHIP_MTM_CREATE_NOT_DELETE_THIS_LINE}}
+			$product = Product::find($request->product_id);
+			$product->stock_out += 1;
+			$product->inventory = $product->stock_in - $product->stock_out;
+			$product->save();
+			Member::find($requestAll['member_id'])->increment('amount');
+			\DB::commit();
+			
+
+
 
 			return $this->jsonData($productPayment, Response::HTTP_CREATED);
 		} catch (\Exception $e) {
+			\DB::rollback();
 			return $this->jsonError($e);
 		}
 	}
@@ -141,5 +162,15 @@ class ProductPaymentController extends Controller
 	    }
     }
 
-    //{{CONTROLLER_RELATIONSHIP_NOT_DELETE_THIS_LINE}}
+    public function rollback(Request $request, ProductPayment $productPayment){
+		try {
+			dd($productPayment);
+	        $productPayment->delete();
+			
+
+		    return $this->jsonMessage(trans('messages.delete'));
+	    } catch (\Exception $e) {
+	    	return $this->jsonError($e);
+	    }
+	}
 }

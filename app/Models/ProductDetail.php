@@ -11,7 +11,7 @@ namespace App\Models;
 
 class ProductDetail extends BaseModel
 {
-	
+	const OUT_STOCK = 0;
 
     //Declare table name
     protected $table = 'product_details';

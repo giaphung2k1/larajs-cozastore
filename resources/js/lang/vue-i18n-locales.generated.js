@@ -102,6 +102,7 @@ export default {
             'delete': 'Delete successfully!',
             'upload': 'Upload success!',
             'delete_confirm': 'This will permanently delete the {attribute}. Continue?',
+            'rollback_confirm': 'This will permanently rollback the {attribute}. Continue?',
             'warning': 'Warning',
             'success': 'Success',
             'error': 'Error',
@@ -223,6 +224,7 @@ export default {
                 'sns_link': 'Sns link',
                 'is_block': 'Is block',
                 'phone': 'Phone',
+                'amount': 'Amount',
             },
             'texts': {
                 'count': 'Showing {from} to {to} of {count} records|{count} records|One record',
@@ -497,6 +499,7 @@ export default {
             'delete': '削除完了しました。',
             'upload': '更新完了しました。',
             'delete_confirm': '削除してもよろしいですか？',
+            'rollback_confirm': 'This will permanently rollback the {attribute}. Continue?',
             'warning': '警告',
             'success': '成功',
             'error': 'エラー',
@@ -617,6 +620,7 @@ export default {
                 'sns_link': 'Sns link',
                 'is_block': 'Is block',
                 'phone': 'Phone',
+                'amount': 'Amount',
             },
             'texts': {
                 'count': 'Showing {from} to {to} of {count} records|{count} records|One record',
@@ -858,6 +862,7 @@ export default {
             'update': 'Cập nhật thành công!',
             'delete': 'Xóa thành công!',
             'delete_confirm': 'Điều này sẽ xóa vĩnh viễn {attribute}. Tiếp tục?',
+            'rollback_confirm': 'Điều này sẽ hoàn tác {attribute}. Tiếp tục?',
             'warning': 'Cảnh báo',
             'success': 'Thành công',
             'error': 'Lỗi',
@@ -967,6 +972,7 @@ export default {
                 'sns_link': 'Sns link',
                 'is_block': 'Is block',
                 'phone': 'Phone',
+                'amount': 'Amount',
             },
             'texts': {
                 'count': 'Hiển thị {from} đến {to} trong số {count} dữ liệu|{count} dữ liệu|Một dữ liệu',

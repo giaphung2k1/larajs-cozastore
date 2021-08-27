@@ -10,7 +10,10 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Models\Product;
+use App\Models\Color;
+use App\Models\Size;
 use App\Models\ProductDetail;
+use App\Models\Member;
 use App\Services\QueryService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -136,6 +139,7 @@ class ProductController extends Controller
 	public function update(StoreProductRequest $request, Product $product): JsonResponse
 	{
 		try {
+		
 			$urlImageOld = parse_url($product->image,PHP_URL_PATH);
 		    $product->fill($request->all());
 			if($request->hasFile('image')){	
@@ -153,7 +157,8 @@ class ProductController extends Controller
 					$productDetails[$key]['updated_at'] = now();
 					$productDetails[$key]['product_id'] = $product->id;
 			}
-			ProductDetail::upsert($productDetails,['product_id','size_id','color_id'],['amount','price']);
+			
+			$productDetails = ProductDetail::upsert($productDetails,['product_id','size_id','color_id'],['amount','price']);
 
             // $colorId = $request->get('color_id', []);
             // $product->colors()->sync($colorId);
@@ -162,7 +167,7 @@ class ProductController extends Controller
            
            
 
-			return $this->jsonData($product);
+			return $this->jsonData($productDetails);
 		} catch (\Exception $e) {
 			return $this->jsonError($e);
 		}
@@ -184,9 +189,7 @@ class ProductController extends Controller
 			}
 	        $product->colors()->detach();
             $product->sizes()->detach();
-            $product->colors()->detach();
-            $product->colors()->detach();
-            //{{CONTROLLER_RELATIONSHIP_MTM_DELETE_NOT_DELETE_THIS_LINE}}
+           
 			$product->delete();
 
 		    return $this->jsonMessage(trans('messages.delete'));
@@ -214,17 +217,29 @@ class ProductController extends Controller
 	 */
 	public function detail($id){
 		try {
-			$productDetails = ProductDetail::where('product_id',$id)->get()->toArray();
-			dd($productDetails);
+			$productDetails = ProductDetail::where('product_id',$id)
+			->where('amount','>',ProductDetail::OUT_STOCK)->get()->toArray();
 			$sizesId = array_unique(\Arr::pluck($productDetails,'size_id'));
 			$colorsId = array_unique(\Arr::pluck($productDetails,'color_id'));
-			$sizes = Size::find($sizesId);
-			$colors = Color::find($colorsId);
-           
+			$sizes = [];
+			$colors = [];
+			foreach($sizesId as $sizeId){
+				$size = Size::find($sizeId);
+				array_push($sizes,$size);
+			}
+			foreach($colorsId as $colorId){
+				$color = Color::find($colorId);
+				array_push($colors,$color);
+			}
+			$members = Member::latest('amount')->limit(Member::ORDER_AMOUNT)->get();
+			
+			
 
             return $this->jsonData([
 				'sizes' => $sizes,
-				'colors' => $colors
+				'colors' => $colors,
+				'members' => $members
+
 			]);
         } catch (\Exception $e) {
             return $this->jsonError($e);

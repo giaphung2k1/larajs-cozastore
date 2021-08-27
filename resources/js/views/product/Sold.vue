@@ -6,7 +6,7 @@
 					{{ $t('route.product_sold') }}
 
 				</div>
-				<el-form ref="product" v-loading="loading.form" :model="form" :rules="rules" label-position="top">
+				<el-form ref="productPayment" v-loading="loading.form" :model="form" :rules="rules" label-position="top">
 					<el-row :gutter="10">
 						<el-col :span="12">
 							<el-form-item
@@ -19,7 +19,6 @@
 									v-model="form.member_id"
 									name="member_id"
 									filterable
-									multiple
 									remote
 									reserve-keyword
 									:remote-method="searchMember"
@@ -95,18 +94,18 @@
 						</el-col>
 						<el-col :span="6">
 							<el-form-item
-								data-generator="amount"
-								:label="$t('table.product_detail.amount')"
-								prop="amount"
-								:error="errors.amount && errors.amount[0]"
+								data-generator="total"
+								:label="$t('table.product_payment.total')"
+								prop="total"
+								:error="errors.total && errors.total[0]"
 								>
 									<el-input-number
-									v-model="form.amount"
-									class="tw-w-full"
-									name="amount"
-									:placeholder="$t('table.product_detail.amount')"
-							/>
-							</el-form-item>
+										v-model="form.total"
+										:min="1"
+										name="total"
+										:placeholder="$t('table.product_payment.total')"
+									/>
+								</el-form-item>
 						</el-col>
 						<el-col :span="24">
 							<el-form-item
@@ -123,6 +122,18 @@
 										:placeholder="$t('table.product_payment.note')"
 									/>
 								</el-form-item>
+						</el-col>
+						<el-col :span="24">
+							<el-form-item class="tw-flex tw-justify-end">
+								<el-button
+									:loading="loading.button"
+									type="success"
+									icon="el-icon-plus"
+									@click="() => store('productPayment')"
+								>
+									{{ $t('button.create') }}
+								</el-button>
+							</el-form-item>
 						</el-col>
 					</el-row>
 				</el-form>
@@ -199,8 +210,6 @@
 import GlobalForm from '@/plugins/mixins/global-form';
 import ProductPaymentResource from '@/api/v1/product-payment';
 import ProductResource from '@/api/v1/product';
-import SizeResource from '@/api/v1/size';
-import ColorResource from '@/api/v1/color';
 import MemberResource from '@/api/v1/member';
 import { validURL } from '@/utils/validate';
 
@@ -210,8 +219,6 @@ Vue.use(VueMask);
 
 const productPaymentResource = new ProductPaymentResource();
 const memberResource = new MemberResource();
-const colorResource = new ColorResource();
-const sizeResource = new SizeResource();
 const productResource = new ProductResource();
 export default {
 	mixins: [GlobalForm],
@@ -219,10 +226,9 @@ export default {
 		return {
 			form: {
 				id: '',
-				total: 0,
-				price: '',
 				note: '',
-				product_id: '',
+				total: 1,
+				product_id: this.$route.params.id,
 				size_id: '',
 				color_id: '',
 				member_id: '',
@@ -250,11 +256,11 @@ export default {
 	// not rename rules
 		rules() {
 			return {
-				price: [
-				{ required: true, message: this.$t('validation.required', { attribute: this.$t('table.product_detail.price') }), trigger: ['change', 'blur'] },
+				member_id: [
+					{ required: true, message: this.$t('validation.required', { attribute: this.$t('route.member') }), trigger: ['change', 'blur'] },
 				],
-				amount: [
-				{ required: true, message: this.$t('validation.required', { attribute: this.$t('table.product_detail.amount') }), trigger: ['change', 'blur'] },
+				total: [
+				{ required: true, message: this.$t('validation.required', { attribute: this.$t('table.product_payment.total') }), trigger: ['change', 'blur'] },
 				],
 				product_id: [
 				{ required: true, message: this.$t('validation.required', { attribute: this.$t('route.product') }), trigger: ['change', 'blur'] },
@@ -299,13 +305,9 @@ export default {
 		this.loading.form = true;
 		const { id } = this.$route.params;
 		const { data: { data: productDetails }} = await productResource.detail(id);
-
-		const { data: { data: product }} = await productResource.getProduct();
-		this.productList = product;
-		const { data: { data: size }} = await sizeResource.getSize();
-		this.sizeList = size;
-		const { data: { data: color }} = await colorResource.getColor();
-		this.colorList = color;
+		this.sizeList = productDetails.sizes;
+		this.colorList = productDetails.colors;
+		this.memberList = productDetails.members;
 		if (id) {
 		const { data: { data: productDetail }} = await ProductPaymentResource.get(id);
 		this.form = productDetail;
@@ -332,6 +334,33 @@ export default {
 			} catch (e) {
 				this.loading.member = false;
 			}
+		},
+		store(productPayment){
+			this.$refs[productPayment].validate((valid, errors) => {
+				if (this.scrollToError(valid, errors)) {
+					return;
+				}
+				this.$confirm(this.$t('common.popup.create'), {
+					confirmButtonText: this.$t('button.create'),
+					cancelButtonText: this.$t('button.cancel'),
+					type: 'warning',
+					center: true,
+				}).then(async () => {
+					try {
+						this.loading.button = true;
+						await productPaymentResource.store(this.form);
+						this.$message({
+							showClose: true,
+							message: this.$t('messages.create'),
+							type: 'success',
+						});
+						this.loading.button = false;
+						await this.$router.push({ name: 'Product' });
+					} catch (e) {
+						this.loading.button = false;
+					}
+				});
+			});
 		},
 		storeMember(member) {
 		this.$refs[member].validate((valid, errors) => {

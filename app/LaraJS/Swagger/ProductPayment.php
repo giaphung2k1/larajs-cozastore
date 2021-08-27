@@ -53,7 +53,7 @@
  *          @OA\MediaType(
  *              mediaType="multipart/form-data",
  *              @OA\Schema (
- *                  required={"id", "product_id", "size_id", "color_id", "member_id"},
+ *                  required={"id", "product_id", "size_id", "color_id", "member_id", "product_detail_id"},
  *                  @OA\Property(property="total", type="INT", default="0", example="5987", description=""),
      *                  @OA\Property(property="price", type="FLOAT", default="NULL", example="1809.85", description=""),
      *                  @OA\Property(property="note", type="TEXT", default="NULL", example="Ut non est voluptas nemo reprehenderit ut. In voluptatibus eos sit eveniet similique. Molestias nostrum voluptatem est consequuntur qui. In placeat libero iste officiis omnis. Veniam deserunt eaque quo ut.", description=""),
@@ -61,6 +61,7 @@
  *                  @OA\Property(property="size_id", type="BIGINT", default="NONE", example="1", description="hasMany"),
  *                  @OA\Property(property="color_id", type="BIGINT", default="NONE", example="1", description="hasMany"),
  *                  @OA\Property(property="member_id", type="BIGINT", default="NONE", example="1", description="hasMany"),
+ *                  @OA\Property(property="product_detail_id", type="BIGINT", default="NONE", example="1", description="hasMany"),
  *                  x="{{SWAGGER_PROPERTY_JSON_CONTENT_NOT_DELETE_THIS_LINE}}"
  *              )
  *          )
@@ -91,7 +92,7 @@
  *          @OA\MediaType(
  *              mediaType="multipart/form-data",
  *              @OA\Schema (
- *                  required={"id", "product_id", "size_id", "color_id", "member_id"},
+ *                  required={"id", "product_id", "size_id", "color_id", "member_id", "product_detail_id"},
  *                  @OA\Property(property="total", type="INT", default="0", example="5987", description=""),
      *                  @OA\Property(property="price", type="FLOAT", default="NULL", example="1809.85", description=""),
      *                  @OA\Property(property="note", type="TEXT", default="NULL", example="Ut non est voluptas nemo reprehenderit ut. In voluptatibus eos sit eveniet similique. Molestias nostrum voluptatem est consequuntur qui. In placeat libero iste officiis omnis. Veniam deserunt eaque quo ut.", description=""),
@@ -99,6 +100,7 @@
  *                  @OA\Property(property="size_id", type="BIGINT", default="NONE", example="1", description="hasMany"),
  *                  @OA\Property(property="color_id", type="BIGINT", default="NONE", example="1", description="hasMany"),
  *                  @OA\Property(property="member_id", type="BIGINT", default="NONE", example="1", description="hasMany"),
+ *                  @OA\Property(property="product_detail_id", type="BIGINT", default="NONE", example="1", description="hasMany"),
  *                  x="{{SWAGGER_PROPERTY_JSON_CONTENT_NOT_DELETE_THIS_LINE}}"
  *              )
  *          )
@@ -124,7 +126,7 @@
  * @OA\Schema(
  *     type="object",
  *     title="ProductPayment",
- *     required={"id", "product_id", "size_id", "color_id", "member_id"},
+ *     required={"id", "product_id", "size_id", "color_id", "member_id", "product_detail_id"},
  * )
  */
 class ProductPayment
@@ -163,6 +165,11 @@ class ProductPayment
     /**
      * @OA\Property(property="member_id", default="NONE", description="hasMany")
      * @var Member
+     */
+
+    /**
+     * @OA\Property(property="product_detail_id", default="NONE", description="hasMany")
+     * @var ProductDetail
      */
 
     //{{SWAGGER_PROPERTY_NOT_DELETE_THIS_LINE}}

@@ -59,13 +59,15 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::apiResource('sizes', 'SizeController');
     /*<==> ProductPayment Route - 2021-08-17 12:27:50 <==>*/
     Route::apiResource('product-payments', 'ProductPaymentController');
+    Route::delete('product-payments/{product_payment}/rollback', 'ProductPaymentController@rollback');
     /*<==> ProductReject Route - 2021-08-17 12:31:00 <==>*/
     Route::apiResource('product-rejects', 'ProductRejectController');
     /*<==> Member Route - 2021-08-17 12:35:43 <==>*/
     Route::get('/members/get-members', 'MemberController@getMember');
     Route::get('/members/search', 'MemberController@search');
             Route::apiResource('members', 'MemberController');
-    Route::apiResource('product-details', 'ProductDetailController');
+    Route::get('/product-details/get-product-details', 'ProductDetailController@getProductDetail');
+            Route::apiResource('product-details', 'ProductDetailController');
     
    
 });

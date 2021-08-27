@@ -133,7 +133,28 @@
 							/>
 						</el-select>
 					</el-form-item>
-						<!--{{$FROM_ITEM_NOT_DELETE_THIS_LINE$}}-->
+						<el-form-item
+			data-generator="product_detail_id"
+			:label="$t('route.product_detail')"
+			prop="product_detail_id"
+			:error="errors.product_detail_id && errors.product_detail_id[0]"
+			>
+			<el-select
+				v-model="form.product_detail_id"
+				name="product_detail_id"
+				filterable
+				:placeholder="$t('route.product_detail')"
+				class="tw-w-full"
+			>
+				<el-option
+				v-for="(item, index) in productDetailList"
+				:key="'productDetail_' + index"
+				:label="item.price"
+				:value="item.id"
+				/>
+			</el-select>
+			</el-form-item>
+			<!--{{$FROM_ITEM_NOT_DELETE_THIS_LINE$}}-->
 					<el-form-item class="tw-flex tw-justify-end">
 						<router-link v-slot="{ href, navigate }" :to="{ name: 'ProductPayment' }" custom>
 							<a :href="href" class="el-button el-button--info is-plain" @click="navigate">{{ $t('button.cancel') }}</a>
@@ -172,9 +193,11 @@ import ProductResource from '@/api/v1/product';
 import SizeResource from '@/api/v1/size';
 import ColorResource from '@/api/v1/color';
 import MemberResource from '@/api/v1/member';
+import ProductDetailResource from '@/api/v1/product-detail';
 // {{$IMPORT_COMPONENT_NOT_DELETE_THIS_LINE$}}
 
 const productPaymentResource = new ProductPaymentResource();
+const productDetailResource = new ProductDetailResource();
 const memberResource = new MemberResource();
 const colorResource = new ColorResource();
 const sizeResource = new SizeResource();
@@ -188,15 +211,16 @@ export default {
 	data() {
 		return {
 			form: {
-				id: '',
-				total: 0,
-				price: '',
-				note: '',
-				product_id: '',
-				size_id: '',
-				color_id: '',
-				member_id: '',
-			}, // {{$$}}
+			id: '',
+		total: 0,
+		price: '',
+		note: '',
+		product_id: '',
+		size_id: '',
+		color_id: '',
+		member_id: '',
+		product_detail_id: '',
+	}, // {{$$}}
 			loading: {
 				form: false,
 				button: false,
@@ -205,7 +229,8 @@ export default {
 			sizeList: [],
 			colorList: [],
 			memberList: [],
-				// {{$DATA_NOT_DELETE_THIS_LINE$}}
+				productDetailList: [],
+		// {{$DATA_NOT_DELETE_THIS_LINE$}}
 		};
 	},
 	computed: {
@@ -224,7 +249,10 @@ export default {
 				member_id: [
 					{ required: true, message: this.$t('validation.required', { attribute: this.$t('route.member') }), trigger: ['change', 'blur'] },
 				],
-				// {{$RULES_NOT_DELETE_THIS_LINE$}}
+				product_detail_id: [
+			{ required: true, message: this.$t('validation.required', { attribute: this.$t('route.product_detail') }), trigger: ['change', 'blur'] },
+		],
+		// {{$RULES_NOT_DELETE_THIS_LINE$}}
 			};
 		},
 	},
@@ -248,6 +276,10 @@ const {
 				data: { data: member },
 			} = await memberResource.getMember();
 			this.memberList = member;
+const {
+		data: { data: productDetail },
+		} = await productDetailResource.getProductDetail();
+		this.productDetailList = productDetail;
 // {{$CREATED_NOT_DELETE_THIS_LINE$}}
 			if (id) {
 				const {

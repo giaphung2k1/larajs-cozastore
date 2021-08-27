@@ -54,9 +54,9 @@
                   {{ row.total }}
                 </template>
               </el-table-column>
-              <el-table-column data-generator="price" prop="price" :label="$t('table.product_payment.price')" align="center" header-align="center">
+              <el-table-column min-with="110px" data-generator="price" prop="price" :label="$t('table.product_payment.price')" align="center" header-align="center">
                 <template slot-scope="{ row }">
-                  {{ row.price }}
+                  {{ row.price | currency }}
                 </template>
               </el-table-column>
               <el-table-column data-generator="note" prop="note" :label="$t('table.product_payment.note')" align="left" header-align="center">
@@ -92,8 +92,7 @@
               </el-table-column>
               <el-table-column :label="$t('table.actions')" align="center" class-name="small-padding fixed-width">
                 <template slot-scope="{ row }">
-                  <router-link v-permission="['edit']" :to="{name: 'ProductPaymentEdit', params: {id: row.id}}"><i class="el-icon-edit el-link el-link--primary tw-mr-2" /></router-link>
-                  <a v-permission="['delete']" class="cursor-pointer" @click.stop="() => remove(row.id)"><i class="el-icon-delete el-link el-link--danger" /></a>
+                    <svg-icon v-permission="['edit']" icon-class="rollback" class="tw-text-2xl tw-m-auto tw-cursor-pointer" @click="onRollback(row)" />
                 </template>
               </el-table-column>
             </el-table>
@@ -113,6 +112,11 @@
 
   export default {
     components: { Pagination },
+    filters: {
+			currency(price){
+				return Number((parseInt(price)).toFixed(1)).toLocaleString() + ' VNĐ';
+			},
+		},
     mixins: [DateRangePicker],
     data() {
       return {
@@ -140,6 +144,27 @@
       this.getList();
     },
     methods: {
+      onRollback(product){
+        this.$confirm(this.$t('messages.rollback_confirm', { attribute: this.$t('table.product_payment.id') + '#' + product.id }), this.$t('messages.warning'), {
+          confirmButtonText: this.$t('button.ok'),
+          cancelButtonClass: this.$t('button.cancel'),
+          type: 'warning',
+          center: true,
+        }).then(async () => {
+          try {
+            this.table.loading = true;
+            await productPaymentResource.rollback(product);
+            this.$message({
+              showClose: true,
+              message: this.$t('messages.success'),
+              type: 'success',
+            });
+            this.table.loading = false;
+          } catch (e) {
+            this.table.loading = false;
+          }
+        });
+      },
       async getList() {
         try {
           this.table.loading = true;
