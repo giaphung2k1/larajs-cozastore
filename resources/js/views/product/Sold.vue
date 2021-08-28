@@ -348,14 +348,14 @@ export default {
 				}).then(async () => {
 					try {
 						this.loading.button = true;
-						await productPaymentResource.store(this.form);
-						this.$message({
+						const { data: { data: product_payment }} = await productPaymentResource.store(this.form);
+							this.$message({
 							showClose: true,
 							message: this.$t('messages.create'),
 							type: 'success',
-						});
-						this.loading.button = false;
-						await this.$router.push({ name: 'Product' });
+							});
+							this.loading.button = false;
+							await this.$router.push({ name: 'Product' });
 					} catch (e) {
 						this.loading.button = false;
 					}

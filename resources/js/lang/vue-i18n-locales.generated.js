@@ -66,6 +66,7 @@ export default {
             'is_admin': 'Can not delete admin user',
             'file_not_found': 'File not found!',
             '404': 'Page Not Found. Check if you entered an invalid link!',
+            'product_detail_not_found': 'Product detail does not exist',
         },
         'field': {
             'password': 'Password',
@@ -224,6 +225,11 @@ export default {
                 'sns_link': 'Sns link',
                 'is_block': 'Is block',
                 'phone': 'Phone',
+                'amount': 'Amount',
+            },
+            'product_detail': {
+                'id': 'ID',
+                'price': 'Price',
                 'amount': 'Amount',
             },
             'texts': {
@@ -463,6 +469,7 @@ export default {
             'is_admin': 'アドミンユーザーを削除できません。',
             'file_not_found': 'ファイルが見つかりません。',
             '404': 'ページが見つかりません。',
+            'product_detail_not_found': 'Product detail does not exist',
         },
         'field': {
             'password': 'パスワード',
@@ -620,6 +627,11 @@ export default {
                 'sns_link': 'Sns link',
                 'is_block': 'Is block',
                 'phone': 'Phone',
+                'amount': 'Amount',
+            },
+            'product_detail': {
+                'id': 'ID',
+                'price': 'Price',
                 'amount': 'Amount',
             },
             'texts': {
@@ -828,6 +840,7 @@ export default {
             'is_admin': 'Không thể xóa Admin',
             'file_not_found': 'File không tồn tại!',
             '404': 'Không tìm thấy trang. Kiểm tra nếu bạn nhập một liên kết không hợp lệ!',
+            'product_detail_not_found': 'Chi tiết sản phẩm không tồn tại',
         },
         'field': {
             'password': 'Mật khẩu',
@@ -972,6 +985,11 @@ export default {
                 'sns_link': 'Sns link',
                 'is_block': 'Is block',
                 'phone': 'Phone',
+                'amount': 'Amount',
+            },
+            'product_detail': {
+                'id': 'ID',
+                'price': 'Price',
                 'amount': 'Amount',
             },
             'texts': {

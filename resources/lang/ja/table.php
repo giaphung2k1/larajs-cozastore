@@ -62,7 +62,12 @@ return [
         'phone' => 'Phone',
         'amount' => 'Amount',
 	],
-             //{{LANG_TABLE_NOT_DELETE_THIS_LINE}}
+    'product_detail' => [
+        'id'=>"ID",
+        'price' => 'Price',
+        'amount' => 'Amount'
+    ],
+            
     'texts' => [
         'count' => 'Showing {from} to {to} of {count} records|{count} records|One record',
         'first' => 'First',

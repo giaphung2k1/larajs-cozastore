@@ -60,6 +60,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     /*<==> ProductPayment Route - 2021-08-17 12:27:50 <==>*/
     Route::apiResource('product-payments', 'ProductPaymentController');
     Route::delete('product-payments/{product_payment}/rollback', 'ProductPaymentController@rollback');
+    Route::get('product-payments/export/excel', 'ProductPaymentController@exportExcel');
     /*<==> ProductReject Route - 2021-08-17 12:31:00 <==>*/
     Route::apiResource('product-rejects', 'ProductRejectController');
     /*<==> Member Route - 2021-08-17 12:35:43 <==>*/

@@ -12,6 +12,7 @@ namespace App\Http\Controllers\Api\v1;
 use App\Models\ProductPayment;
 use App\Models\ProductDetail;
 use App\Models\Product;
+use App\Models\Member;
 use App\Services\QueryService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -83,26 +84,25 @@ class ProductPaymentController extends Controller
 			->where('size_id',$request->size_id)
 			->where('amount','>',0)
 			->first();
+			if(!$productDetail){
+				return $this->jsonMessage(trans('error.product_detail_not_found'),false,500);
+			}
 			$requestAll = $request->all();
 			$requestAll['product_detail_id'] = $productDetail->id;
 			$requestAll['price'] = $productDetail->price * $requestAll['total'];
 			$productDetail->decrement('amount',$requestAll['total']);
-		    $productPayment = new ProductPayment();
-		    $productPayment->fill($requestAll);
-            $productPayment->save();
+			$productPayment = new ProductPayment();
+			$productPayment->fill($requestAll);
+			$productPayment->save();
 			$product = Product::find($request->product_id);
-			$product->stock_out += 1;
+			$product->stock_out += $requestAll['total'];
 			$product->inventory = $product->stock_in - $product->stock_out;
 			$product->save();
-			Member::find($requestAll['member_id'])->increment('amount');
+			Member::find($requestAll['member_id'])->increment('amount',$requestAll['total']);
 			\DB::commit();
-			
-
-
-
 			return $this->jsonData($productPayment, Response::HTTP_CREATED);
 		} catch (\Exception $e) {
-			\DB::rollback();
+			\DB::rollBack();
 			return $this->jsonError($e);
 		}
 	}
@@ -164,12 +164,61 @@ class ProductPaymentController extends Controller
 
     public function rollback(Request $request, ProductPayment $productPayment){
 		try {
-			dd($productPayment);
+			\DB::beginTransaction();
+			// dd($request->all());
+			$productDetail = ProductDetail::find($request->get('product_detail_id'));
+			$productDetail->increment('amount',$request->total);
+			$product = Product::find($request->product_id);
+			$product->stock_out -= $request->total;
+			$product->inventory = $product->stock_in - $product->stock_out;
+			$product->save();
+			Member::find($request->get('member_id'))->decrement('amount',$request->total);
 	        $productPayment->delete();
 			
-
+			\DB::commit();
 		    return $this->jsonMessage(trans('messages.delete'));
 	    } catch (\Exception $e) {
+			\DB::rollback();
+	    	return $this->jsonError($e);
+	    }
+	}
+	public function exportExcel(){
+		try{
+			set_time_limit(0);
+			// $productPayment = \DB::table('product_payments as prop')
+			// ->where([
+			// 	'prop.total',
+			// 	'prop.price',
+			// 	'products.name as product_name',
+			// 	'sizes.name as size_name',
+			// 	'colors.name as color_name',
+			// 	'members.name as member_name',
+			// 	'prop.note',
+			// 	'prop.updated_at',
+			// ])
+			// ->leftJoin('products','products.id','prop.id')
+			// ->leftJoin('sizes','sizes.id','prop.size_id')
+			// ->leftJoin('colors','colors.id','prop.color_id')
+			// ->leftJoin('members','members.id','prop.member_id')
+			// ->get();
+			$productPayment = ProductPayment::all();
+			$productPaymentNew = [];
+			foreach($productPayment as $item){
+				$productPaymentNew[] = [
+					'id' => $item->id,
+					'total' => $item->total,
+					'price' => $item->price,
+					'product_name' => $item->product->name,
+					'size_name' => $item->size->name,
+					'color_name' => $item->color->name,
+					'member_name' => $item->member->name,
+					'note' => $item->note,
+					'updated_at'=> $item->updated_at,
+				];
+			}
+			return $this->jsonData($productPaymentNew);
+		}catch (\Exception $e) {
+			// \DB::rollback();
 	    	return $this->jsonError($e);
 	    }
 	}

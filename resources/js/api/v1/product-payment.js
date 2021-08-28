@@ -18,6 +18,14 @@ export default class ProductPaymentResource extends Resource {
       data: product,
     });
   }
+  exportExcel(query){
+    return request({
+      url: this.uri + '/export/excel',
+      method: 'get',
+      params: query,
+      timeout: 0,
+    });
+  }
 
   // {{$API_NOT_DELETE_THIS_LINE$}}
 }
