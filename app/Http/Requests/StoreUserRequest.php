@@ -28,7 +28,7 @@ class StoreUserRequest extends FormRequest
         return [
             'name' => 'required',
             'email' => "required|string|email|max:255|unique:users,email,$id,id,deleted_at,NULL",
-            'avatar' => 'required',
+            // 'avatar' => 'required',
             'password' => [
                 $id ? '' : 'required',
                 'confirmed',

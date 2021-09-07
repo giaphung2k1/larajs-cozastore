@@ -26,6 +26,20 @@ export default class ProductPaymentResource extends Resource {
       timeout: 0,
     });
   }
+  totalSold(updated_at){
+    return request({
+      url: this.uri + '/total/sold',
+      method: 'get',
+      params: { updated_at },
+    });
+  }
+  chart(updated_at){
+    return request({
+      url: '/product-payments/chart',
+      method: 'get',
+      params: { updated_at },
+    });
+  }
 
   // {{$API_NOT_DELETE_THIS_LINE$}}
 }

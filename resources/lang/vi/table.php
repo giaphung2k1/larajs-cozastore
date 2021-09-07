@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'actions' => 'Actions',
+    'actions' => 'Hành động',
     'user' => [
         'id' => 'STT',
         'name' => 'Tên',
@@ -18,54 +18,56 @@ return [
     ],
     'category' => [
 		'id' => 'ID',
-        'name' => 'Name',
+        'name' => 'Tên',
 	],
      'product' => [
         'id' => 'ID',
-        'name' => 'Name',
-        'image' => 'Image',
-        'description' => 'Description',
-        'stock_in' => 'Stock in',
-        'stock_out' => 'Stock out',
-        'inventory' => 'Inventory',
-        'price' => 'Price',
-        'discount' => 'Discount',
-        'status' => 'Status',
-        'code' => 'Code',
+        'name' => 'Tên',
+        'image' => 'Hình ảnh',
+        'description' => 'Mô tả',
+        'stock_in' => 'Hàng vào',
+        'stock_out' => 'Hàng ra',
+        'inventory' => 'Tồn kho',
+        'price' => 'Giá',
+        'discount' => 'Giảm giá',
+        'status' => 'Trạng thái',
+        'code' => 'Mã',
 	],
      'color' => [
 		'id' => 'ID',
-        'name' => 'Name',
+        'name' => 'Tên',
 	],
     'size' => [
 		'id' => 'ID',
-        'name' => 'Name',
+        'name' => 'Tên',
 	],
     'product_payment' => [
 		'id' => 'ID',
-        'total' => 'Total',
-        'price' => 'Price',
-        'note' => 'Note',
+        'total' => 'Số lượng',
+        'price' => 'Giá',
+        'note' => 'Ghi chú',
+        'total_sold' => 'Tổng tiền',
+        'reason' => 'Lý do'
 	],
     'product_reject' => [
 		'id' => 'ID',
-        'total' => 'Total',
-        'price' => 'Price',
-        'note' => 'Note',
+        'total' => 'Số lượng',
+        'price' => 'Giá',
+        'note' => 'Ghi chú',
 	],
       'member' => [
         'id' => 'ID',
-        'code' => 'Code',
-        'name' => 'Name',
-        'sns_link' => 'Sns link',
-        'is_block' => 'Is block',
-        'phone' => 'Phone',
-        'amount' => 'Amount',
+        'code' => 'Mã',
+        'name' => 'Tên',
+        'sns_link' => 'MXH(link)',
+        'is_block' => 'Khóa',
+        'phone' => 'SĐT',
+        'amount' => 'Số lượng mua',
 	],
     'product_detail' => [
         'id'=>"ID",
-        'price' => 'Price',
-        'amount' => 'Amount'
+        'price' => 'Giá',
+        'amount' => 'Số lượng'
     ],
     'texts' => [
         'count' => 'Hiển thị {from} đến {to} trong số {count} dữ liệu|{count} dữ liệu|Một dữ liệu',

@@ -12,7 +12,7 @@
 				</div>
 				<el-form ref="product" v-loading="loading.form" :model="form" :rules="rules" label-position="top">
 				<el-row :gutter="20">
-					<el-col :span="12">
+					<el-col :xs="24" :span="12">
 						<el-form-item
 						data-generator="name"
 						:label="$t('table.product.name')"
@@ -28,25 +28,9 @@
 							/>
 						</el-form-item>
 					</el-col>
-					<el-col :span="12">
-						<el-form-item
-						data-generator="code"
-						:label="$t('table.product.code')"
-						prop="code"
-						:error="errors.code && errors.code[0]"
-						>
-							<el-input
-								v-model="form.code"
-								name="code"
-								:placeholder="$t('table.product.code')"
-								maxlength="191"
-								show-word-limit
-							/>
-						</el-form-item>
-					</el-col>
 				</el-row>
 				<el-row :gutter="10">
-					<el-col :span="6">
+					<el-col :xs="24" :span="6">
 						<el-form-item
 					data-generator="image"
 					:label="$t('table.product.image')"
@@ -69,29 +53,6 @@
 						</el-upload>
 					</el-form-item>
 					</el-col>
-					<el-col :span="6">
-						<el-form-item
-						data-generator="category_id"
-						:label="$t('route.category')"
-						prop="category_id"
-						:error="errors.category_id && errors.category_id[0]"
-						>
-						<el-select
-							v-model="form.category_id"
-							name="category_id"
-							filterable
-							:placeholder="$t('route.category')"
-							class="tw-w-full"
-						>
-							<el-option
-							v-for="(item, index) in categoryList"
-							:key="'category_' + index"
-							:label="item.name"
-							:value="item.id"
-							/>
-						</el-select>
-						</el-form-item>
-					</el-col>
 				</el-row>
 					<el-form-item
 					data-generator="description"
@@ -108,40 +69,30 @@
 						/>
 					</el-form-item>
 					<el-row :gutter="10">
-						<el-col :span="8">
+						<el-col :xs="24" :span="14">
 							<el-form-item
-								data-generator="stock_in"
-								:label="$t('table.product.stock_in')"
-								prop="stock_in"
-								:error="errors.stock_in && errors.stock_in[0]"
+							data-generator="category_id"
+							:label="$t('route.category')"
+							prop="category_id"
+							:error="errors.category_id && errors.category_id[0]"
 							>
-								<el-input-number
-									v-model="form.stock_in"
-									class="tw-w-full"
-									name="stock_in"
-									:placeholder="$t('table.product.stock_in')"
+							<el-select
+								v-model="form.category_id"
+								name="category_id"
+								filterable
+								:placeholder="$t('route.category')"
+								class="tw-w-full"
+							>
+								<el-option
+								v-for="(item, index) in categoryList"
+								:key="'category_' + index"
+								:label="item.name"
+								:value="item.id"
 								/>
+							</el-select>
 							</el-form-item>
 						</el-col>
-						<el-col :span="8">
-							<el-form-item
-								data-generator="price"
-								:label="$t('table.product.price')"
-								prop="price"
-								:error="errors.price && errors.price[0]"
-								>
-								<div class="el-input el-input--medium">
-									<money
-									v-model="form.price"
-									v-bind="money"
-									:placeholder="$t('table.product.price')"
-									class="el-input__inner"
-									></money>
-								</div>
-
-							</el-form-item>
-						</el-col>
-						<el-col :span="8">
+						<el-col :xs="24" :span="8">
 							<el-form-item
 							data-generator="discount"
 							:label="$t('table.product.discount')"
@@ -152,6 +103,7 @@
 									v-model="form.discount"
 									class="tw-w-full"
 									name="discount"
+
 									:placeholder="$t('table.product.discount')"
 								/>
 							</el-form-item>
@@ -175,12 +127,17 @@
 								/>
 							</el-tooltip>
 					</el-form-item>
-					<el-row v-for="(detail,indexDetail) in form.product_details" :key="indexDetail" class="product-detail__list" :gutter="10">
-						<el-col :span="6">
+					<el-row v-for="(detail,indexDetail) in form.product_details" ref="product-detail" :key="indexDetail" class="product-detail__list" :gutter="10">
+						<el-col :xs="24" :span="6">
 							<el-form-item
 							data-generator="size_id"
 							:label="$t('route.size')"
-							prop="size_id"
+							:rules="{
+								required: true,
+								message: $t('validation.required', { attribute: $t('route.size') }),
+								trigger: 'change',
+							}"
+							:prop="`product_details.${indexDetail}.size_id`"
 							:error="errors.size_id && errors.size_id[0]"
 							>
 								<el-select
@@ -199,11 +156,16 @@
 								</el-select>
 							</el-form-item>
 						</el-col>
-						<el-col :span="6">
+						<el-col :xs="24" :span="6">
 							<el-form-item
 								data-generator="color_id"
 								:label="$t('route.color')"
-								prop="color_id"
+								:rules="{
+									required: true,
+									message: $t('validation.required', { attribute: $t('route.color') }),
+									trigger: 'change',
+								}"
+								:prop="`product_details.${indexDetail}.color_id`"
 								:error="errors.color_id && errors.color_id[0]"
 								>
 									<el-select
@@ -222,11 +184,16 @@
 									</el-select>
 							</el-form-item>
 						</el-col>
-						<el-col :span="6">
+						<el-col :xs="24" :span="6">
 							<el-form-item
 								data-generator="amount"
 								:label="$t('table.product_detail.amount')"
-								prop="amount"
+								:rules="{
+									required: true,
+									message: $t('validation.required', { attribute: $t('table.product_detail.amount') }),
+									trigger: 'change',
+								}"
+								:prop="`product_details.${indexDetail}.amount`"
 								:error="errors.amount && errors.amount[0]"
 								>
 									<el-input-number
@@ -234,23 +201,31 @@
 									class="tw-w-full"
 									name="amount"
 									:placeholder="$t('table.product_detail.amount')"
-							/>
+									/>
 							</el-form-item>
 						</el-col>
-						<el-col :span="6">
+						<el-col :xs="24" :span="6">
 							<el-form-item
 								data-generator="price"
 								:label="$t('table.product_detail.price')"
-								prop="price"
+								:rules="{
+									required: true,
+									message: $t('validation.required', { attribute: $t('table.product_detail.price') }),
+									trigger: 'change',
+								}"
+								:prop="`product_details.${indexDetail}.price`"
 								:error="errors.price && errors.price[0]"
 								>
-									<el-input
-									v-model="detail.price"
-									name="price"
-									:placeholder="$t('table.product_detail.price')"
-									maxlength="191"
-									show-word-limit
-									/>
+									<div class="el-input el-input--medium">
+										<money
+											v-model="detail.price"
+											v-bind="money"
+											name="price"
+											:placeholder="$t('table.product.price')"
+											class="el-input__inner"
+										/>
+									</div>
+
 								</el-form-item>
 						</el-col>
 						<el-button
@@ -259,10 +234,10 @@
 						class="product-detail__delete"
 						icon="el-icon-delete"
 						circle
-						@click="onDeleteProductDetail(indexDetail)"
+						@click="onDeleteProductDetail(indexDetail,detail.id)"
 						></el-button>
 					</el-row>
-					<el-button icon="el-icon-plus" type="primary" @click="onAddProductDetail">Add product detail</el-button>
+					<el-button icon="el-icon-plus" type="primary" @click="onAddProductDetail">{{ $t('button.add_product_detail') }}</el-button>
 
 					<el-form-item class="tw-flex tw-justify-end">
 						<router-link
@@ -287,6 +262,7 @@
 								:loading="loading.button"
 								type="success"
 								icon="el-icon-plus"
+								class="tw-m-8"
 								@click="() => store('product')"
 							>
 								{{ $t('button.create') }}
@@ -327,21 +303,21 @@ export default {
 				name: '',
 				image: '',
 				description: '',
-				stock_in: undefined,
 				stock_out: 0,
 				inventory: 0,
 
 				discount: '',
 				status: 1,
-				code: '',
+				// code: '',
 
 				category_id: '',
 				product_details: [
 					{
+					// id: '',
 					price: '',
 					color_id: '',
 					size_id: '',
-					amount: 0,
+					amount: undefined,
 					},
 				],
 			},
@@ -365,27 +341,17 @@ export default {
 	},
 
 	computed: {
-		// not rename rules
 		rules() {
 			return {
 				name: [
 					{ required: true, message: this.$t('validation.required', { attribute: this.$t('table.product.name') }), trigger: ['change', 'blur'] },
 				],
-				code: [
-					{ required: true, message: this.$t('validation.required', { attribute: this.$t('table.product.code') }), trigger: ['change', 'blur'] },
-				],
-				stock_in: [
-					{ required: true, message: this.$t('validation.required', { attribute: this.$t('table.product.stock_in') }), trigger: ['change', 'blur'] },
-				],
-				price: [
-					{ required: true, message: this.$t('validation.required', { attribute: this.$t('table.product.price') }), trigger: ['change', 'blur'] },
-				],
+				// code: [
+				// 	{ required: true, message: this.$t('validation.required', { attribute: this.$t('table.product.code') }), trigger: ['change', 'blur'] },
+				// ],
 				category_id: [
 					{ required: true, message: this.$t('validation.required', { attribute: this.$t('route.category') }), trigger: ['change', 'blur'] },
-
 				],
-
-		// {{$RULES_NOT_DELETE_THIS_LINE$}}
 			};
 		},
 	},
@@ -410,7 +376,13 @@ export default {
 		}
 	},
 	methods: {
-		onDeleteProductDetail(indexDetail){
+		onDeleteProductDetail(indexDetail, id){
+			if (id){
+				if (!this.form.idDeletes) {
+					this.form.idDeletes = [];
+				}
+				this.form.idDeletes.push(id);
+			}
 			this.form.product_details.splice(indexDetail, 1);
 		},
 		onAddProductDetail(){
@@ -490,7 +462,7 @@ export default {
 							type: 'success',
 						});
 						this.loading.button = false;
-						// await this.$router.push({ name: 'Product' });
+						await this.$router.push({ name: 'Product' });
 					} catch (e) {
 						this.loading.button = false;
 					}

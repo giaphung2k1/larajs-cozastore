@@ -31,9 +31,8 @@ class StoreProductDetailRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'price' => 'required|string|max:191',
+            'price' => 'required',
             'amount' => 'required|numeric',
-            //{{REQUEST_RULES_NOT_DELETE_THIS_LINE}}
         ];
     }
 }

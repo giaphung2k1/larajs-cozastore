@@ -46,6 +46,8 @@ return [
         'total' => 'Total',
         'price' => 'Price',
         'note' => 'Note',
+        'total_sold' => 'Total sold',
+        'reason' => 'Reason'
 	],
     'product_reject' => [
 		'id' => 'ID',
@@ -65,7 +67,9 @@ return [
     'product_detail' => [
         'id'=>"ID",
         'price' => 'Price',
-        'amount' => 'Amount'
+        'amount' => 'Amount',
+        'total_sold' => 'Total sold'
+
     ],
             
     'texts' => [

@@ -89,15 +89,14 @@ export const constantRouterMap = [
 ];
 
 export const asyncRouterMap = [
+  productPayment,
   category,
-      product,
-      color,
-      size,
-      productPayment,
-      productReject,
-      member,
-      productDetail,
-      // {{$ROUTE_ASYNC_NOT_DELETE_THIS_LINE$}},
+  product,
+  color,
+  size,
+  productReject,
+  member,
+  productDetail,
   administrator,
   { path: '*', redirect: '/404', hidden: true },
 ];

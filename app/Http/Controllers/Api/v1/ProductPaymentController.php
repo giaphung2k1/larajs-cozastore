@@ -12,6 +12,7 @@ namespace App\Http\Controllers\Api\v1;
 use App\Models\ProductPayment;
 use App\Models\ProductDetail;
 use App\Models\Product;
+use App\Models\ProductReject;
 use App\Models\Member;
 use App\Services\QueryService;
 use Illuminate\Http\Request;
@@ -19,6 +20,7 @@ use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\StoreProductPaymentRequest;
+use  Illuminate\Support\Carbon;
 
 class ProductPaymentController extends Controller
 {
@@ -51,7 +53,7 @@ class ProductPaymentController extends Controller
 
 			$queryService = new QueryService(new ProductPayment);
             $queryService->select = [];
-            $queryService->columnSearch = [];
+            $queryService->columnSearch = ['member.name'];
             $queryService->withRelationship = ['product','size','color','member'];
             $queryService->search = $search;
             $queryService->betweenDate = $betweenDate;
@@ -89,12 +91,14 @@ class ProductPaymentController extends Controller
 			}
 			$requestAll = $request->all();
 			$requestAll['product_detail_id'] = $productDetail->id;
-			$requestAll['price'] = $productDetail->price * $requestAll['total'];
+			$product = Product::find($request->product_id);
+			$totalPrice = $productDetail->price * $requestAll['total'];
+			$requestAll['price'] = $totalPrice - ($totalPrice * $product->discount /100);
 			$productDetail->decrement('amount',$requestAll['total']);
 			$productPayment = new ProductPayment();
 			$productPayment->fill($requestAll);
 			$productPayment->save();
-			$product = Product::find($request->product_id);
+			
 			$product->stock_out += $requestAll['total'];
 			$product->inventory = $product->stock_in - $product->stock_out;
 			$product->save();
@@ -173,6 +177,13 @@ class ProductPaymentController extends Controller
 			$product->inventory = $product->stock_in - $product->stock_out;
 			$product->save();
 			Member::find($request->get('member_id'))->decrement('amount',$request->total);
+			ProductReject::create([
+				'total' => $request->get('total'),
+				'price' => $request->get('price'),
+				'note'  => $request->get('memo'),
+				'product_id' => $product->id,
+				'product_detail_id' =>  $productDetail->id,
+			]);
 	        $productPayment->delete();
 			
 			\DB::commit();
@@ -185,22 +196,6 @@ class ProductPaymentController extends Controller
 	public function exportExcel(){
 		try{
 			set_time_limit(0);
-			// $productPayment = \DB::table('product_payments as prop')
-			// ->where([
-			// 	'prop.total',
-			// 	'prop.price',
-			// 	'products.name as product_name',
-			// 	'sizes.name as size_name',
-			// 	'colors.name as color_name',
-			// 	'members.name as member_name',
-			// 	'prop.note',
-			// 	'prop.updated_at',
-			// ])
-			// ->leftJoin('products','products.id','prop.id')
-			// ->leftJoin('sizes','sizes.id','prop.size_id')
-			// ->leftJoin('colors','colors.id','prop.color_id')
-			// ->leftJoin('members','members.id','prop.member_id')
-			// ->get();
 			$productPayment = ProductPayment::all();
 			$productPaymentNew = [];
 			foreach($productPayment as $item){
@@ -217,6 +212,52 @@ class ProductPaymentController extends Controller
 				];
 			}
 			return $this->jsonData($productPaymentNew);
+		}catch (\Exception $e) {
+			// \DB::rollback();
+	    	return $this->jsonError($e);
+	    }
+	}
+	public function totalSold(Request $request){
+		try{
+			$updated_at = $request->updated_at;
+			$startDate = Carbon::parse($updated_at[0])->startOfDay();
+			$endDate = Carbon::parse($updated_at[1])->endOfDay();
+
+			// $totalSold = ProductPayment::sum('price');
+			$totalSold = \DB::table('product_payments')
+			->where('deleted_at','=',null)
+			->whereBetween('updated_at',[$startDate,$endDate])
+			->sum('price');
+			return $this->jsonData($totalSold);
+
+		}catch (\Exception $e) {
+			// \DB::rollback();
+	    	return $this->jsonError($e);
+	    }
+	}
+
+	public function chart(Request $request){
+		try{
+			$updated_at = $request->updated_at;
+			$startDate = Carbon::parse($updated_at[0])->startOfDay();
+			$endDate = Carbon::parse($updated_at[1])->endOfDay();
+			$productPayment = \DB::table('product_payments')
+			->where('deleted_at','=',null)
+			->select([\DB::raw('SUM(price) as price'),'updated_at as date'])
+			->whereBetween('updated_at',[$startDate,$endDate])
+			->groupBy(\DB::raw('Date(updated_at)'))
+			->get();
+			$chartData = [
+				'date' => [],
+				'value' => []
+			];
+			foreach($productPayment as $item){
+				$chartData['date'][] = date('Y-m-d', strtotime($item->date)) ;
+				$chartData['value'][] = $item->price;
+			}
+			return $this->jsonData($chartData);
+
+
 		}catch (\Exception $e) {
 			// \DB::rollback();
 	    	return $this->jsonError($e);

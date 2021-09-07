@@ -11,20 +11,6 @@
 					</template>
 				</div>
 				<el-form ref="member" v-loading="loading.form" :model="form" :rules="rules" label-position="top">
-				<el-form-item
-					data-generator="code"
-					:label="$t('table.member.code')"
-					prop="code"
-					:error="errors.code && errors.code[0]"
-					>
-						<el-input
-							v-model="form.code"
-							name="code"
-							:placeholder="$t('table.member.code')"
-							maxlength="191"
-							show-word-limit
-						/>
-					</el-form-item>
 					<el-form-item
 					data-generator="name"
 					:label="$t('table.member.name')"
@@ -79,25 +65,13 @@
 					>
 						<el-input
 							v-model="form.phone"
+							v-mask="'####-###-###'"
 							name="phone"
 							:placeholder="$t('table.member.phone')"
 							maxlength="191"
 							show-word-limit
 						/>
 					</el-form-item>
-					<el-form-item
-					data-generator="amount"
-					:label="$t('table.member.amount')"
-					prop="amount"
-					:error="errors.amount && errors.amount[0]"
-					>
-						<el-input-number
-							v-model="form.amount"
-							name="amount"
-							:placeholder="$t('table.member.amount')"
-						/>
-					</el-form-item>
-					<!--{{$FROM_ITEM_NOT_DELETE_THIS_LINE$}}-->
 					<el-form-item class="tw-flex tw-justify-end">
 						<router-link v-slot="{ href, navigate }" :to="{ name: 'Member' }" custom>
 							<a :href="href" class="el-button el-button--info is-plain" @click="navigate">{{ $t('button.cancel') }}</a>
@@ -132,7 +106,10 @@
 <script>
 import GlobalForm from '@/plugins/mixins/global-form';
 import MemberResource from '@/api/v1/member';
-// {{$IMPORT_COMPONENT_NOT_DELETE_THIS_LINE$}}
+import Vue from 'vue';
+import VueMask from 'v-mask';
+Vue.use(VueMask);
+import { validURL } from '@/utils/validate';
 
 const memberResource = new MemberResource();
 
@@ -145,12 +122,11 @@ export default {
 		return {
 			form: {
 				id: '',
-				code: '',
 				name: '',
 				sns_link: '',
 				is_block: 0,
 				phone: '',
-				amount: '',
+				amount: 0,
  }, // {{$$}}
 			loading: {
 				form: false,
@@ -162,11 +138,27 @@ export default {
 	computed: {
 		// not rename rules
 		rules() {
+			const validateSNSLink = (rule, value, callback) => {
+				if (value){
+					if (validURL(value)){
+						callback();
+					} else {
+						callback(new Error(this.$t('validation.url', { attribute: this.$t('table.member.sns_link') })));
+					}
+				} else {
+					callback();
+				}
+			};
 			return {
 				name: [
 					{ required: true, message: this.$t('validation.required', { attribute: this.$t('table.member.name') }), trigger: ['change', 'blur'] },
 				],
-				// {{$RULES_NOT_DELETE_THIS_LINE$}}
+				sns_link: [
+					{
+						validator: validateSNSLink,
+						trigger: ['change', 'blur'],
+					},
+				],
 			};
 		},
 	},

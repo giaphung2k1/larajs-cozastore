@@ -20,6 +20,7 @@ use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\StoreProductRequest;
+use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
@@ -79,6 +80,7 @@ class ProductController extends Controller
 	public function store(StoreProductRequest $request): JsonResponse
 	{
 		try {
+			
 			$requestAll = $request->all();
 			$requestAll['stock_out'] = 0;
 			$requestAll['inventory'] = 0;	
@@ -90,23 +92,18 @@ class ProductController extends Controller
 				$product->image = $disk->url($fileName);
 			}
             $product->save();
+			$product->code = Product::PREFIX_CODE.str_pad($product->id,2,'0',STR_PAD_LEFT);
 			$productDetails = json_decode($requestAll['product_details'],true)??[];
+			$stock_in = 0;
 			foreach($productDetails as $key =>  $detail){
 				$productDetails[$key]['product_id'] = $product->id;
+				$stock_in += $detail['amount'];
 			}
+			$product->stock_in = $stock_in;
+			$product->save();
 			
 			ProductDetail::upsert($productDetails,['product_id','size_id','color_id'],['amount','price']);
-
-			$colorId = $request->get('color_id', []);
-			if($colorId){
-				$product->colors()->attach($colorId);
-			}
-           
-            $sizeId = $request->get('size_id', []);
-			if($sizeId){
-				$product->sizes()->attach($sizeId);
-			}
-            
+			
 			return $this->jsonData($product, Response::HTTP_CREATED);
 		} catch (\Exception $e) {
 			return $this->jsonError($e);
@@ -139,7 +136,6 @@ class ProductController extends Controller
 	public function update(StoreProductRequest $request, Product $product): JsonResponse
 	{
 		try {
-		
 			$urlImageOld = parse_url($product->image,PHP_URL_PATH);
 		    $product->fill($request->all());
 			if($request->hasFile('image')){	
@@ -152,20 +148,16 @@ class ProductController extends Controller
 			}
             $product->save();
 			$productDetails = json_decode($request->product_details,true)??[];
-			foreach($productDetails as $key =>  $detail){
-					unset($productDetails[$key]['created_at']);
-					$productDetails[$key]['updated_at'] = now();
-					$productDetails[$key]['product_id'] = $product->id;
-			}
-			
-			$productDetails = ProductDetail::upsert($productDetails,['product_id','size_id','color_id'],['amount','price']);
-
-            // $colorId = $request->get('color_id', []);
-            // $product->colors()->sync($colorId);
-            // $sizeId = $request->get('size_id', []);
-            // $product->sizes()->sync($sizeId);
-           
-           
+			foreach ($productDetails as $key => $detail) {
+				unset($productDetails[$key]['created_at']);
+				unset($productDetails[$key]['updated_at']);
+				$productDetails[$key]['product_id'] = $product->id;
+				$productDetails[$key]['id'] = $productDetails[$key]['id'] ?? \Str::uuid();		
+            }
+			// dd($productDetails);
+			ProductDetail::upsert($productDetails, ['id	','product_id'], ['color_id', 'size_id','amount', 'price']);
+			$idDeletes = $request->get('idDeletes') ?  explode(',',$request->get('idDeletes')) :[];
+			$idDeletes && ProductDetail::whereIn('id',$idDeletes)->delete();
 
 			return $this->jsonData($productDetails);
 		} catch (\Exception $e) {
@@ -187,11 +179,12 @@ class ProductController extends Controller
 			if($disk->exists($urlImageOld)){
 				$disk->delete($urlImageOld);
 			}
-	        $product->colors()->detach();
-            $product->sizes()->detach();
-           
+	        // $product->colors()->detach();
+            // $product->sizes()->detach();
+           foreach($product->productDetails as $detail){
+			   ProductDetail::find($detail->id)->delete();
+		   }
 			$product->delete();
-
 		    return $this->jsonMessage(trans('messages.delete'));
 	    } catch (\Exception $e) {
 	    	return $this->jsonError($e);
@@ -238,7 +231,8 @@ class ProductController extends Controller
             return $this->jsonData([
 				'sizes' => $sizes,
 				'colors' => $colors,
-				'members' => $members
+				'members' => $members,
+				'product_details' => $productDetails
 
 			]);
         } catch (\Exception $e) {

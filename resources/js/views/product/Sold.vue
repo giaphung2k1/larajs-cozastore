@@ -8,7 +8,7 @@
 				</div>
 				<el-form ref="productPayment" v-loading="loading.form" :model="form" :rules="rules" label-position="top">
 					<el-row :gutter="10">
-						<el-col :span="12">
+						<el-col :xs="20" :span="12">
 							<el-form-item
 							data-generator="member_id"
 							:label="$t('route.member')"
@@ -40,12 +40,12 @@
 								</el-select>
 							</el-form-item>
 						</el-col>
-						<el-col :span="12">
+						<el-col :xs="4" :span="12">
 							<el-button type="success" icon="el-icon-plus" style="margin-top:4.5rem" @click="memberVisible = true"></el-button>
 						</el-col>
 					</el-row>
-					<el-row :gutter="10">
-						<el-col :span="6">
+					<el-row :xs="24" :gutter="10">
+						<el-col :xs="24" :span="6">
 							<el-form-item
 							data-generator="size_id"
 							:label="$t('route.size')"
@@ -58,6 +58,7 @@
 									filterable
 									:placeholder="$t('route.size')"
 									class="tw-w-full"
+									@change="changeSize"
 								>
 									<el-option
 									v-for="(item, index) in sizeList"
@@ -69,7 +70,7 @@
 							</el-form-item>
 						</el-col>
 
-						<el-col :span="6">
+						<el-col :xs="24" :span="6">
 							<el-form-item
 								data-generator="color_id"
 								:label="$t('route.color')"
@@ -82,6 +83,7 @@
 										filterable
 										:placeholder="$t('route.color')"
 										class="tw-w-full"
+										@change="changeColor"
 									>
 										<el-option
 										v-for="(item, index) in colorList"
@@ -92,7 +94,7 @@
 									</el-select>
 							</el-form-item>
 						</el-col>
-						<el-col :span="6">
+						<el-col :xs="24" :span="6">
 							<el-form-item
 								data-generator="total"
 								:label="$t('table.product_payment.total')"
@@ -107,7 +109,7 @@
 									/>
 								</el-form-item>
 						</el-col>
-						<el-col :span="24">
+						<el-col :xs="24" :span="24">
 							<el-form-item
 								data-generator="note"
 								:label="$t('table.product_payment.note')"
@@ -143,7 +145,6 @@
 			<el-dialog
 			:title="$t('route.member_create')"
 			:visible.sync="memberVisible"
-			width="30%"
 			center
 			>
 				<el-row :gutter="10">
@@ -244,9 +245,11 @@ export default {
 				sns_link: '',
 				phone: '',
 			},
-			productList: [],
+			productDetails: [],
 			sizeList: [],
+			sizeListClone: [],
 			colorList: [],
+			colorListClone: [],
 			memberList: [],
 			memberVisible: false,
 
@@ -306,8 +309,11 @@ export default {
 		const { id } = this.$route.params;
 		const { data: { data: productDetails }} = await productResource.detail(id);
 		this.sizeList = productDetails.sizes;
+		this.sizeListClone = [...productDetails.sizes];
 		this.colorList = productDetails.colors;
+		this.colorListClone = [...productDetails.colors];
 		this.memberList = productDetails.members;
+		this.productDetails = productDetails.product_details;
 		if (id) {
 		const { data: { data: productDetail }} = await ProductPaymentResource.get(id);
 		this.form = productDetail;
@@ -318,6 +324,24 @@ export default {
 	}
 	},
 	methods: {
+		changeColor(){
+			const sizeIds = this.productDetails.reduce((data, item) => {
+				if (item.color_id === this.form.color_id){
+					data.push(item.size_id);
+				}
+				return data;
+			}, []);
+			this.sizeList = this.sizeListClone.filter(item => sizeIds.includes(item.id));
+		},
+		changeSize(){
+			const colorIds = this.productDetails.reduce((data, item) => {
+				if (item.size_id === this.form.size_id){
+					data.push(item.color_id);
+				}
+				return data;
+			}, []);
+			this.colorList = this.colorListClone.filter(item => colorIds.includes(item.id));
+		},
 		changeNameMember(){
 			this.memberForm.code = this.memberForm.name;
 		},

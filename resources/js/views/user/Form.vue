@@ -243,15 +243,15 @@ export default {
             trigger: ['blur', 'change'],
           },
         ],
-        avatar: [
-          {
-            required: true,
-            message: this.$t('validation.required', {
-              attribute: this.$t('table.user.avatar'),
-            }),
-            trigger: ['change', 'blur'],
-          },
-        ],
+        // avatar: [
+        //   {
+        //     required: true,
+        //     message: this.$t('validation.required', {
+        //       attribute: this.$t('table.user.avatar'),
+        //     }),
+        //     trigger: ['change', 'blur'],
+        //   },
+        // ],
         role_id: [
           {
             validator: (rule, value, cb) => {

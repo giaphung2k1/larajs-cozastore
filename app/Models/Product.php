@@ -15,6 +15,7 @@ class Product extends BaseModel
 	use UserSignatureTrait;
     use SoftDeletes;
     const FOLDER_UPLOAD = '/uploads/products';
+    const PREFIX_CODE = 'Product_';
 
     //Declare table name
     protected $table = 'products';

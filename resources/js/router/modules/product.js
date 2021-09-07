@@ -10,7 +10,7 @@ const product = {
   component: () => import('@/layout'),
   meta: {
     title: 'product',
-    icon: 'menu',
+    icon: 'product-hunt-line',
     permissions: ['view menu product'],
   },
   children: [

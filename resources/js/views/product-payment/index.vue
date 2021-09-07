@@ -2,14 +2,24 @@
 	<el-row>
 		<el-col :span="24">
 			<el-card>
-				<div slot="header" class="tw-flex tw-justify-end tw-items-center">
-					<router-link v-slot="{ href, navigate }" v-permission="['create']" :to="{name: 'ProductPaymentCreate'}" custom>
-						<a :href="href" class="pan-btn blue-btn" @click="navigate">
-							<i class="el-icon-plus mr-2" />
-							{{ $t('button.create') }}
-						</a>
-					</router-link>
-				</div>
+				<el-row class="panel-group">
+					<el-col :xs="24" :sm="14" :md="10" class="card-panel-coll">
+						<div class="card-panel">
+							<div class="card-panel-icon-wrapper icon-people">
+							<svg-icon icon-class="money" class-name="card-panel-icon" />
+							</div>
+							<div class="card-panel-description">
+							<div class="card-panel-text">{{ $t('table.product_payment.total_sold') }}</div>
+							<count-to :start-val="0" :end-val="totalSold" :duration="2600" class="card-panel-num" />
+							</div>
+						</div>
+					</el-col>
+				</el-row>
+				<el-row :gutter="10">
+					<el-col v-loading="chart.loadingChart" :span="24">
+						<line-chart :chart-data="chart.chartData" />
+					</el-col>
+				</el-row>
 				<el-row class="tw-mb-5">
 					<el-col :span="24" class="tw-flex tw-justify-end"><el-button type="primary" icon="el-icon-download" :loading="excel.downloadLoading" @click="onExcel">Excel</el-button></el-col>
 				</el-row>
@@ -87,7 +97,6 @@
 									{{ row.member.name }}
 								</template>
 							</el-table-column>
-						<!--{{$TEMPLATES_NOT_DELETE_THIS_LINE$}}-->
 							<el-table-column data-generator="updated_at" prop="updated_at" :label="$t('date.updated_at')" sortable="custom" align="center" header-align="center">
 								<template slot-scope="{ row }">
 									{{ row.updated_at | parseTime('{y}-{m}-{d} {h}:{i}') }}
@@ -95,7 +104,7 @@
 							</el-table-column>
 							<el-table-column :label="$t('table.actions')" align="center" class-name="small-padding fixed-width">
 								<template slot-scope="{ row }">
-										<svg-icon v-permission="['edit']" icon-class="rollback" class="tw-text-2xl tw-m-auto tw-cursor-pointer" @click="onRollback(row)" />
+										<svg-icon v-permission="['edit']" icon-class="rollback" class="tw-text-2xl tw-m-auto tw-cursor-pointer" @click="openDialogReject(row)" />
 								</template>
 							</el-table-column>
 						</el-table>
@@ -104,9 +113,28 @@
 				</el-row>
 			</el-card>
 		</el-col>
+		<el-dialog
+		:title="$t('table.product_payment.reason')"
+		:visible.sync="dialogReject.visible"
+		width="30%"
+>
+		<el-input
+		v-model="productPayment.memo"
+		type="textarea"
+		:rows="5"
+		placeholder="Please input"
+>
+		</el-input>
+		<span slot="footer" class="dialog-footer">
+			<el-button @click="dialogReject	.visible = false">{{ $t('button.cancel') }}</el-button>
+			<el-button type="primary" @click="onRollback">{{ $t('button.confirm') }}</el-button>
+		</span>
+		</el-dialog>
 	</el-row>
 </template>
 <script>
+	import LineChart from './components/LineChart';
+	import countTo from 'vue-count-to';
 	import DateRangePicker from '@/plugins/mixins/date-range-picker';
 	import Pagination from '@/components/Pagination'; // Secondary package based on el-pagination
 	import { debounce } from '@/utils';
@@ -114,7 +142,7 @@
 	const productPaymentResource = new ProductPaymentsResource();
 
 	export default {
-		components: { Pagination },
+		components: { Pagination, countTo, LineChart },
 		filters: {
 			currency(price){
 				return Number((parseInt(price)).toFixed(1)).toLocaleString() + ' VNĐ';
@@ -130,7 +158,7 @@
 						ascending: 'descending',
 						page: 1,
 						orderBy: 'updated_at',
-						updated_at: [],
+						updated_at: [new Date(new Date().getTime() - 3600 * 1000 * 24 * 7), new Date()],
 					},
 					list: null,
 					total: 0,
@@ -142,6 +170,15 @@
 					autoWith: '',
 					bookType: 'xlsx',
 				},
+				totalSold: 0,
+				chart: {
+					loadingChart: false,
+					chartData: {},
+				},
+				dialogReject: {
+					visible: false,
+				},
+				productPayment: {},
 			};
 		},
 		watch: {
@@ -151,8 +188,28 @@
 		},
 		created() {
 			this.getList();
+			this.getTotalSold();
+			this.handleChart();
 		},
 		methods: {
+			async handleChart(){
+				try {
+					this.chart.loadingChart = true;
+					const { data: { data: data }} = await productPaymentResource.chart(this.table.listQuery.updated_at);
+					this.chart.chartData = data;
+					this.chart.loadingChart = false;
+				} catch (e) {
+				this.chart.loadingChart = false;
+				}
+			},
+			async getTotalSold(){
+				try {
+				const { data: { data: total }} = await productPaymentResource.totalSold(this.table.listQuery.updated_at);
+				this.totalSold = total;
+				} catch (e){
+					console.log(e);
+				}
+			},
 			async onExcel(){
 				this.excel.downloadLoading = true;
 				import('@/vendor/Export2Excel').then(async excel => {
@@ -206,8 +263,14 @@
 						}
 					})
 				);
-		},
-			onRollback(productPayment){
+			},
+			openDialogReject(productPayment){
+				this.dialogReject.visible = true;
+				this.productPayment = productPayment;
+			},
+			onRollback(){
+				this.dialogReject.visible = false;
+				const productPayment = this.productPayment;
 				this.$confirm(this.$t('messages.rollback_confirm', { attribute: this.$t('table.product_payment.id') + '#' + productPayment.id }), this.$t('messages.warning'), {
 					confirmButtonText: this.$t('button.ok'),
 					cancelButtonClass: this.$t('button.cancel'),
@@ -221,6 +284,8 @@
 						delete productPayment.member;
 						delete productPayment.product;
 						await productPaymentResource.rollback(productPayment);
+						this.getTotalSold();
+						this.handleChart();
 						const index = this.table.list.findIndex(value => value.id === productPayment.id);
 						this.table.list.splice(index, 1);
 						this.$message({
@@ -255,9 +320,11 @@
 					const endDate = this.parseTimeToTz(date[1]);
 					this.table.listQuery.updated_at = [startDate, endDate];
 				} else {
-					this.table.listQuery.updated_at = [];
+					this.table.listQuery.updated_at = [new Date(new Date().getTime() - 3600 * 1000 * 24 * 7), new Date()];
 				}
+				this.handleChart();
 				this.handleFilter();
+				this.getTotalSold();
 			},
 			sortChange(data) {
 				const { prop, order } = data;
@@ -291,3 +358,96 @@
 		},
 	};
 </script>
+
+<style lang="scss" scoped>
+.panel-group {
+	margin-top: 18px;
+
+	.card-panel-col {
+	margin-bottom: 32px;
+	}
+
+	.card-panel {
+	height: 108px;
+	cursor: pointer;
+	font-size: 12px;
+	position: relative;
+	overflow: hidden;
+	color: #666;
+	background: #fff;
+	box-shadow: 4px 4px 40px rgba(0, 0, 0, 0.05);
+	border-color: rgba(0, 0, 0, 0.05);
+
+	&:hover {
+		.card-panel-icon-wrapper {
+		color: #fff !important;
+		}
+
+		.icon-people {
+		background: #40c9c6;
+		}
+
+		.icon-message {
+		background: #36a3f7;
+		}
+
+		.icon-money {
+		background: #40c9c6;
+		// background: #f4516c;
+		}
+
+		.icon-shopping {
+		background: #34bfa3;
+		}
+	}
+
+	.icon-people {
+		color: #40c9c6;
+	}
+
+	.icon-message {
+		color: #36a3f7;
+	}
+
+	.icon-money {
+		color: #f4516c;
+	}
+
+	.icon-shopping {
+		color: #34bfa3;
+	}
+
+	.card-panel-icon-wrapper {
+		float: left;
+		margin: 14px 0 0 14px;
+		padding: 16px;
+		transition: all 0.38s ease-out;
+		border-radius: 6px;
+	}
+
+	.card-panel-icon {
+		float: left;
+		font-size: 48px;
+	}
+
+	.card-panel-description {
+		float: right;
+		font-weight: bold;
+		margin: 26px;
+		margin-left: 0px;
+
+		.card-panel-text {
+		line-height: 18px;
+		color: rgba(0, 0, 0, 0.45);
+		font-size: 16px;
+		margin-bottom: 12px;
+		}
+
+		.card-panel-num {
+		font-size: 20px;
+		}
+	}
+	}
+}
+</style>
+

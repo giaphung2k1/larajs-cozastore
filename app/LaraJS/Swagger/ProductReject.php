@@ -53,11 +53,12 @@
  *          @OA\MediaType(
  *              mediaType="multipart/form-data",
  *              @OA\Schema (
- *                  required={"id", "product_id"},
+ *                  required={"id", "product_id", "product_detail_id"},
  *                  @OA\Property(property="total", type="INT", default="NULL", example="1746", description=""),
      *                  @OA\Property(property="price", type="FLOAT", default="NULL", example="6206.91", description=""),
      *                  @OA\Property(property="note", type="VARCHAR", default="NULL", example="Demarco Larson", description=""),
  *                  @OA\Property(property="product_id", type="BIGINT", default="NONE", example="1", description="hasMany"),
+ *                  @OA\Property(property="product_detail_id", type="BIGINT", default="NONE", example="1", description="hasMany"),
  *                  x="{{SWAGGER_PROPERTY_JSON_CONTENT_NOT_DELETE_THIS_LINE}}"
  *              )
  *          )
@@ -88,11 +89,12 @@
  *          @OA\MediaType(
  *              mediaType="multipart/form-data",
  *              @OA\Schema (
- *                  required={"id", "product_id"},
+ *                  required={"id", "product_id", "product_detail_id"},
  *                  @OA\Property(property="total", type="INT", default="NULL", example="1746", description=""),
      *                  @OA\Property(property="price", type="FLOAT", default="NULL", example="6206.91", description=""),
      *                  @OA\Property(property="note", type="VARCHAR", default="NULL", example="Demarco Larson", description=""),
  *                  @OA\Property(property="product_id", type="BIGINT", default="NONE", example="1", description="hasMany"),
+ *                  @OA\Property(property="product_detail_id", type="BIGINT", default="NONE", example="1", description="hasMany"),
  *                  x="{{SWAGGER_PROPERTY_JSON_CONTENT_NOT_DELETE_THIS_LINE}}"
  *              )
  *          )
@@ -118,7 +120,7 @@
  * @OA\Schema(
  *     type="object",
  *     title="ProductReject",
- *     required={"id", "product_id"},
+ *     required={"id", "product_id", "product_detail_id"},
  * )
  */
 class ProductReject
@@ -142,6 +144,11 @@ class ProductReject
     /**
      * @OA\Property(property="product_id", default="NONE", description="hasMany")
      * @var Product
+     */
+
+    /**
+     * @OA\Property(property="product_detail_id", default="NONE", description="hasMany")
+     * @var ProductDetail
      */
 
     //{{SWAGGER_PROPERTY_NOT_DELETE_THIS_LINE}}
